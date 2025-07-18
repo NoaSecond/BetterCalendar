@@ -2,7 +2,7 @@
 
 Une application web simple et moderne pour visualiser l'emploi du temps du Master MAJIC de l'Université Côte d'Azur. L'application est conçue comme une Progressive Web App (PWA) pour une installation facile sur mobile et ordinateur.
 
-![App Web Vercel](https://better-calendar-sand.vercel.app)
+[App Web Vercel](https://better-calendar-sand.vercel.app)
 
 ---
 
