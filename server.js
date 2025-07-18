@@ -12,8 +12,12 @@ app.use(express.static('public'));
 
 app.get('/api/calendar', async (req, res) => {
     try {
-        const response = await axios.get(icsUrl);
+        console.log('Fetching calendar from:', icsUrl);
+        const response = await axios.get(icsUrl, { timeout: 8000 }); // Ajout d'un timeout de 8 secondes
+        
+        console.log('Calendar data fetched successfully. Parsing...');
         const events = await ical.async.parseICS(response.data);
+        console.log('Parsing complete.');
         
         const formattedEvents = Object.values(events)
             .filter(event => event.type === 'VEVENT')
@@ -27,9 +31,18 @@ app.get('/api/calendar', async (req, res) => {
             }));
         
         res.json(formattedEvents);
+
     } catch (error) {
-        console.error("Erreur lors de la récupération du calendrier:", error.message);
-        res.status(500).json({ error: 'Impossible de récupérer les données du calendrier.' });
+        // Log plus détaillé pour le débogage sur Vercel
+        console.error('Error in /api/calendar function:', error.message);
+        if (error.response) {
+            console.error('Error details (data):', error.response.data);
+            console.error('Error details (status):', error.response.status);
+        }
+        res.status(500).json({ 
+            error: 'Impossible de récupérer les données du calendrier.',
+            details: error.message 
+        });
     }
 });
 
@@ -37,6 +50,12 @@ app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 });
 
-app.listen(port, () => {
-    console.log(`Serveur lancé sur http://localhost:${port}`);
-});
+// Note : La ligne app.listen n'est pas utilisée par Vercel, mais est utile pour le dev local
+if (process.env.VERCEL_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Serveur local lancé sur http://localhost:${port}`);
+    });
+}
+
+// Exporter l'app pour Vercel
+module.exports = app;
