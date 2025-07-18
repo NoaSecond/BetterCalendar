@@ -56,3 +56,15 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 ### Changer le lien du calendrier
 
 Le lien vers le fichier `.ics` est défini dans `server.js`. Modifiez la constante `icsUrl` pour utiliser un autre calendrier.
+
+## 🤝 Contribuer
+
+Les contributions sont les bienvenues ! Si vous souhaitez améliorer ce projet, n'hésitez pas à proposer des modifications.
+
+1.  **Forkez** le projet.
+2.  Créez une nouvelle branche pour votre fonctionnalité (`git checkout -b feature/NouvelleFonctionnalite`).
+3.  Faites vos modifications et **committez-les**.
+    -   **Important** : Ce projet utilise **Gitmoji** pour les messages de commit. Veuillez préfixer vos commits avec l'emoji approprié pour décrire le changement. La liste complète est disponible sur [gitmoji.dev](https://gitmoji.dev/).
+    -   Exemple : `git commit -m "✨ Ajout d'une nouvelle fonctionnalité incroyable"`
+4.  **Poussez** vos changements vers votre fork (`git push origin feature/NouvelleFonctionnalite`).
+5.  Ouvrez une **Pull Request**.
