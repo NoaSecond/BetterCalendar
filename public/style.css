@@ -1,0 +1,151 @@
+/* Variables pour les thèmes */
+:root {
+    --bg-color: #f4f7f6;
+    --text-color: #111;
+    --header-bg: #ffffff;
+    --border-color: #ddd;
+    --card-bg: #ffffff;
+    --accent-color: #007bff;
+    
+    --course-cm-bg: #dbeafe;
+    --course-td-bg: #dcfce7;
+    --course-tp-bg: #fee2e2;
+    --course-projet-bg: #fef3c7;
+    --course-other-bg: #e5e7eb;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #f1f1f1;
+    --header-bg: #1e1e1e;
+    --border-color: #333;
+    --card-bg: #1e1e1e;
+    
+    --course-cm-bg: #1e3a8a;
+    --course-td-bg: #166534;
+    --course-tp-bg: #991b1b;
+    --course-projet-bg: #b45309;
+    --course-other-bg: #374151;
+}
+
+/* Styles de base */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+header .controls {
+    display: flex;
+    gap: 1rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    background-color: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+nav h2 {
+    font-size: 1rem;
+    text-align: center;
+    margin: 0;
+}
+
+main {
+    padding: 1rem;
+}
+
+/* Vue Hebdomadaire */
+#week-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.day-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.day-header {
+    font-weight: bold;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+/* Vue Liste */
+#list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Carte d'événement (commune aux deux vues) */
+.event-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid; /* La couleur sera définie par la classe */
+    padding: 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.event-card h3 {
+    font-size: 0.9rem;
+    margin: 0 0 0.25rem;
+}
+
+.event-card p {
+    font-size: 0.8rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.no-class-message {
+    text-align: center;
+    padding: 3rem;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Couleurs par type de cours */
+.course-cm { border-left-color: #3b82f6; background-color: var(--course-cm-bg); }
+.course-td { border-left-color: #22c55e; background-color: var(--course-td-bg); }
+.course-tp { border-left-color: #ef4444; background-color: var(--course-tp-bg); }
+.course-projet { border-left-color: #f97316; background-color: var(--course-projet-bg); }
+.course-autre { border-left-color: #6b7280; background-color: var(--course-other-bg); }

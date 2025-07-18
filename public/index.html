@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendrier MAJIC</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon.png">
+    <meta name="theme-color" content="#1a73e8"/>
+    <link rel="icon" type="image/png" href="/images/icon.png">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Calendrier MAJIC</h1>
+        <div class="controls">
+            <button id="view-toggle-btn">Vue Liste</button>
+            <button id="theme-toggle-btn">🌙</button>
+        </div>
+    </header>
+
+    <nav>
+        <button id="prev-week-btn">&lt; Sem. Préc.</button>
+        <h2 id="current-week-info">Chargement...</h2>
+        <button id="next-week-btn">Sem. Suiv. &gt;</button>
+    </nav>
+
+    <main id="calendar-container">
+        </main>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('ServiceWorker registration successful'))
+                    .catch(err => console.log('ServiceWorker registration failed: ', err));
+            });
+        }
+    </script>
+</body>
+</html>

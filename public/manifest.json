@@ -1,0 +1,16 @@
+{
+    "short_name": "Calendrier MAJIC",
+    "name": "Calendrier du Master MAJIC",
+    "icons": [
+        {
+            "src": "/images/icon.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#1a73e8"
+}
