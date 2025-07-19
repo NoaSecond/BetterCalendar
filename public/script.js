@@ -157,22 +157,51 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Gestionnaires d'événements ---
-    prevWeekBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 7); renderCalendar(); });
-    nextWeekBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 7); renderCalendar(); });
-    todayBtn.addEventListener('click', () => { currentDate = new Date(); renderCalendar(); });
+
+    // NOUVELLE FONCTION pour gérer le changement de semaine avec animation
+    const handleWeekChange = (direction) => {
+        calendarContainer.classList.add('calendar-fading'); // 1. Démarre l'animation de disparition
+
+        // 2. Attend la fin de la transition (300ms, comme dans le CSS)
+        setTimeout(() => {
+            if (direction === 'prev') {
+                currentDate.setDate(currentDate.getDate() - 7);
+            } else {
+                currentDate.setDate(currentDate.getDate() + 7);
+            }
+            renderCalendar(); // 3. Met à jour le contenu (pendant qu'il est invisible)
+            calendarContainer.classList.remove('calendar-fading'); // 4. Démarre l'animation d'apparition
+        }, 300);
+    };
+
+    prevWeekBtn.addEventListener('click', () => handleWeekChange('prev'));
+    nextWeekBtn.addEventListener('click', () => handleWeekChange('next'));
+
+    // Le reste de vos gestionnaires reste identique...
+    todayBtn.addEventListener('click', () => {
+        currentDate = new Date();
+        renderCalendar();
+    });
+
     viewToggleBtn.addEventListener('click', () => {
         currentView = currentView === 'week' ? 'list' : 'week';
         viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
         renderCalendar();
     });
+
     themeToggleBtn.addEventListener('click', () => {
         const isDark = document.body.classList.toggle('dark-mode');
         themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         updateThemeButtonAria(isDark);
     });
+
     modalCloseBtn.addEventListener('click', () => eventModal.classList.remove('visible'));
-    eventModal.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.classList.remove('visible'); });
+    eventModal.addEventListener('click', (e) => {
+        if (e.target === eventModal) {
+            eventModal.classList.remove('visible');
+        }
+    });
 
     // --- PWA Update Logic ---
     const updateNotification = document.getElementById('update-notification');

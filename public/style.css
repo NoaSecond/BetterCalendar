@@ -300,6 +300,16 @@ main {
     }
 }
 
+/* --- Styles pour la transition du calendrier --- */
+#calendar-container {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#calendar-container.calendar-fading {
+    opacity: 0;
+    transform: translateY(15px); /* Donne un léger effet de glissement vers le bas */
+}
+
 footer {
     text-align: center;
     padding: 1.5rem;
