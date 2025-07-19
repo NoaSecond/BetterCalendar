@@ -338,7 +338,21 @@ footer a:hover {
     /* Donne un léger effet de glissement vers le bas */
 }
 
-/* --- Ajustements pour les appareils mobiles --- */
+/* --- Ajustements pour Tablettes et Mobiles --- */
+
+/* Pour les tablettes (écrans jusqu'à 1024px) */
+@media (max-width: 1024px) {
+    .update-notification.show {
+        /* Position standard pour les tablettes */
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        transform: translateX(0);
+        width: auto;
+    }
+}
+
+/* Pour les téléphones (écrans jusqu'à 768px) */
 @media (max-width: 768px) {
 
     /* Masque le bouton "Aujourd'hui" pour gagner de la place */
@@ -346,13 +360,11 @@ footer a:hover {
         display: none;
     }
 
-    /* Descend la notification de mise à jour pour qu'elle soit moins gênante */
     .update-notification.show {
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
-        transform: translateX(0);
-        width: auto;
+        /* Décale la notification pour prendre en compte les barres de navigation des mobiles (iOS/Android) */
+        bottom: calc(15px + env(safe-area-inset-bottom));
+        left: 15px;
+        right: 15px;
     }
 }
 
