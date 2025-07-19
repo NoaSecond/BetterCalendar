@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Éléments du DOM ---
+    // --- Références aux éléments du DOM ---
     const calendarContainer = document.getElementById('calendar-container');
     const prevWeekBtn = document.getElementById('prev-week-btn');
     const nextWeekBtn = document.getElementById('next-week-btn');
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentDate = new Date();
     let currentView = window.innerWidth <= 768 ? 'list' : 'week';
 
-    // --- Fonctions ---
+    // --- Fonctions Utilitaires ---
     const getWeekNumber = (d) => {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -39,16 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatTime = (date) => date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+    // --- Logique Principale du Calendrier ---
     const fetchAndRenderCalendar = async () => {
         skeletonLoader.style.display = 'grid';
         calendarContainer.style.display = 'none';
-
         try {
             const response = await fetch('/api/calendar');
             if (!response.ok) throw new Error('La réponse du serveur n\'est pas OK');
             const data = await response.json();
-            allEvents = data.map(e => ({ ...e, start: new Date(e.start), end: new Date(e.end) }))
-                .sort((a, b) => a.start - b.start);
+            allEvents = data.map(e => ({ ...e, start: new Date(e.start), end: new Date(e.end) })).sort((a, b) => a.start - b.start);
             renderCalendar();
         } catch (error) {
             calendarContainer.innerHTML = `<p class="no-class-message">Impossible de charger le calendrier. Vérifiez votre connexion ou le serveur.</p>`;
@@ -77,18 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return eventDate >= firstDayOfWeek && eventDate <= new Date(lastDayOfWeek.getTime() + 86400000 - 1);
         });
 
-        calendarContainer.innerHTML = ''; // On vide pour être sûr tkt
-
+        calendarContainer.innerHTML = '';
         if (eventsThisWeek.length === 0) {
             calendarContainer.innerHTML = `<p class="no-class-message">Pas de cours cette semaine. Profitez-en ! 🎉</p>`;
             return;
         }
 
-        if (currentView === 'week') {
-            renderWeekView(eventsThisWeek, firstDayOfWeek);
-        } else {
-            renderListView(eventsThisWeek);
-        }
+        currentView === 'week' ? renderWeekView(eventsThisWeek, firstDayOfWeek) : renderListView(eventsThisWeek);
     };
 
     const renderWeekView = (events, firstDayOfWeek) => {
@@ -131,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const createEventCard = (event) => {
         const card = document.createElement('div');
-        const courseType = getCourseType(event.summary);
-        card.className = `event-card course-${courseType}`;
+        card.className = `event-card course-${getCourseType(event.summary)}`;
         const title = document.createElement('h3');
         title.textContent = event.summary;
         const time = document.createElement('p');
@@ -156,60 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.setAttribute('aria-label', isDark ? 'Passer au mode clair' : 'Passer au mode sombre');
     };
 
-    // --- Gestionnaires d'événements ---
-
-    // NOUVELLE FONCTION pour gérer le changement de semaine avec animation
-    const handleWeekChange = (direction) => {
-        calendarContainer.classList.add('calendar-fading'); // 1. Démarre l'animation de disparition
-
-        // 2. Attend la fin de la transition (300ms, comme dans le CSS)
-        setTimeout(() => {
-            if (direction === 'prev') {
-                currentDate.setDate(currentDate.getDate() - 7);
-            } else {
-                currentDate.setDate(currentDate.getDate() + 7);
-            }
-            renderCalendar(); // 3. Met à jour le contenu (pendant qu'il est invisible)
-            calendarContainer.classList.remove('calendar-fading'); // 4. Démarre l'animation d'apparition
-        }, 300);
-    };
-
-    prevWeekBtn.addEventListener('click', () => handleWeekChange('prev'));
-    nextWeekBtn.addEventListener('click', () => handleWeekChange('next'));
-
-    // Le reste de vos gestionnaires reste identique...
-    todayBtn.addEventListener('click', () => {
-        currentDate = new Date();
-        renderCalendar();
-    });
-
-    viewToggleBtn.addEventListener('click', () => {
-        currentView = currentView === 'week' ? 'list' : 'week';
-        viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
-        renderCalendar();
-    });
-
-    themeToggleBtn.addEventListener('click', () => {
-        const isDark = document.body.classList.toggle('dark-mode');
-        themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        updateThemeButtonAria(isDark);
-    });
-
-    modalCloseBtn.addEventListener('click', () => eventModal.classList.remove('visible'));
-    eventModal.addEventListener('click', (e) => {
-        if (e.target === eventModal) {
-            eventModal.classList.remove('visible');
-        }
-    });
-
-    // --- PWA Update Logic ---
-    const updateNotification = document.getElementById('update-notification');
-    const updateBtn = document.getElementById('update-btn');
-    navigator.serviceWorker.addEventListener('message', event => { if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') updateNotification.classList.add('show'); });
-    updateBtn.addEventListener('click', () => window.location.reload());
-
-    // --- Logique de la version ---
     const fetchVersion = async () => {
         const versionSpan = document.getElementById('commit-version');
         try {
@@ -223,7 +162,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Initialisation ---
+    // --- Gestionnaires d'Événements ---
+    const handleWeekChange = (direction) => {
+        calendarContainer.classList.add('calendar-fading');
+        setTimeout(() => {
+            currentDate.setDate(currentDate.getDate() + (direction === 'prev' ? -7 : 7));
+            renderCalendar();
+            calendarContainer.classList.remove('calendar-fading');
+        }, 300);
+    };
+
+    prevWeekBtn.addEventListener('click', () => handleWeekChange('prev'));
+    nextWeekBtn.addEventListener('click', () => handleWeekChange('next'));
+    todayBtn.addEventListener('click', () => { currentDate = new Date(); renderCalendar(); });
+    viewToggleBtn.addEventListener('click', () => {
+        currentView = currentView === 'week' ? 'list' : 'week';
+        viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
+        renderCalendar();
+    });
+    themeToggleBtn.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-mode');
+        themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateThemeButtonAria(isDark);
+    });
+    modalCloseBtn.addEventListener('click', () => eventModal.classList.remove('visible'));
+    eventModal.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.classList.remove('visible'); });
+
+    // --- Logique de la PWA ---
+    const updateNotification = document.getElementById('update-notification');
+    const updateBtn = document.getElementById('update-btn');
+    navigator.serviceWorker.addEventListener('message', event => { if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') updateNotification.classList.add('show'); });
+    updateBtn.addEventListener('click', () => window.location.reload());
+
+    // --- Initialisation de l'Application ---
     viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
     const isInitiallyDark = localStorage.getItem('theme') === 'dark';
     if (isInitiallyDark) {
@@ -231,8 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.textContent = '☀️';
     }
     updateThemeButtonAria(isInitiallyDark);
-
-    // On lance les deux chargements en parallèle
+    
     fetchAndRenderCalendar();
     fetchVersion();
 });
