@@ -338,7 +338,23 @@ footer a:hover {
     /* Donne un léger effet de glissement vers le bas */
 }
 
+/* --- Ajustements pour les appareils mobiles --- */
+@media (max-width: 768px) {
 
+    /* Masque le bouton "Aujourd'hui" pour gagner de la place */
+    #today-btn {
+        display: none;
+    }
+
+    /* Descend la notification de mise à jour pour qu'elle soit moins gênante */
+    .update-notification.show {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        transform: translateX(0);
+        width: auto;
+    }
+}
 
 /* Couleurs par type de cours */
 .course-cm {
