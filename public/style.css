@@ -360,6 +360,10 @@ footer a:hover {
         display: none;
     }
 
+    .update-notification {
+        bottom: -150px;
+    }
+
     .update-notification.show {
         /* Décale la notification pour prendre en compte les barres de navigation des mobiles (iOS/Android) */
         bottom: calc(15px + env(safe-area-inset-bottom));
