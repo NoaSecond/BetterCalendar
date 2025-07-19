@@ -246,6 +246,60 @@ main {
     font-weight: bold;
 }
 
+/* --- Transitions & Animations --- */
+.event-card, .day-column, .list-view > * {
+    transition: all 0.4s ease;
+}
+
+/* --- Skeleton Loader --- */
+.skeleton-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    width: 100%;
+}
+
+.skeleton-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton {
+    background-color: var(--border-color);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton.header {
+    height: 24px;
+    width: 60%;
+    margin: 0 auto 0.5rem auto;
+}
+
+.skeleton.card {
+    height: 100px;
+}
+
+/* Animation de scintillement */
+.skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        left: 150%;
+    }
+}
+
 footer {
     text-align: center;
     padding: 1.5rem;

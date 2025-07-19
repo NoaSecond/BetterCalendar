@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendrier MAJIC</title>
-    
+
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="/images/icon.png">
-    <meta name="theme-color" content="#1a73e8"/>
+    <meta name="theme-color" content="#1a73e8" />
     <link rel="icon" type="image/png" href="/images/icon.png">
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
         <h1>Calendrier MAJIC</h1>
@@ -23,20 +25,49 @@
 
     <nav>
         <button id="prev-week-btn">&lt; Sem. Préc.</button>
-        <button id="today-btn">Aujourd'hui</button> <h2 id="current-week-info">Chargement...</h2>
+        <button id="today-btn">Aujourd'hui</button>
+        <h2 id="current-week-info">Chargement...</h2>
         <button id="next-week-btn">Sem. Suiv. &gt;</button>
     </nav>
 
-    <main id="calendar-container">
+    <main>
+        <div id="skeleton-loader" class="skeleton-container">
+            <div class="skeleton-column">
+                <div class="skeleton header"></div>
+                <div class="skeleton card"></div>
+                <div class="skeleton card"></div>
+            </div>
+            <div class="skeleton-column">
+                <div class="skeleton header"></div>
+                <div class="skeleton card"></div>
+            </div>
+            <div class="skeleton-column">
+                <div class="skeleton header"></div>
+                <div class="skeleton card"></div>
+                <div class="skeleton card"></div>
+            </div>
+            <div class="skeleton-column">
+                <div class="skeleton header"></div>
+                <div class="skeleton card"></div>
+            </div>
+            <div class="skeleton-column">
+                <div class="skeleton header"></div>
+                <div class="skeleton card"></div>
+                <div class="skeleton card"></div>
+            </div>
+        </div>
+
+        <div id="calendar-container"></div>
     </main>
 
     <footer>
         <p>
-            <a href="https://github.com/NoaSecond/BetterCalendar" target="_blank" rel="noopener noreferrer">Projet sur GitHub</a>
+            <a href="https://github.com/NoaSecond/BetterCalendar" target="_blank" rel="noopener noreferrer">Projet sur
+                GitHub</a>
             - Version : <span id="commit-version">chargement...</span>
         </p>
     </footer>
-    
+
     <div id="event-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" class="modal-close-btn">&times;</button>
@@ -63,4 +94,5 @@
         }
     </script>
 </body>
+
 </html>
