@@ -1,31 +1,71 @@
-const CACHE_NAME = 'majic-calendar-cache-v1';
-const urlsToCache = [
+const STATIC_CACHE = 'majic-static-v1';
+const DYNAMIC_CACHE = 'majic-dynamic-v1';
+
+const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/style.css',
     '/script.js',
-    '/images/icon.png'
+    '/images/icon.png',
+    '/manifest.json'
 ];
 
+// Installation : mise en cache des assets statiques
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
+        caches.open(STATIC_CACHE)
+            .then(cache => cache.addAll(STATIC_ASSETS))
     );
 });
 
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
+// Activation : nettoyage des anciens caches
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(keys => {
+            return Promise.all(keys
+                .filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
+                .map(key => caches.delete(key))
+            );
+        })
     );
+});
+
+// Fonction pour notifier l'application
+const notifyClients = async () => {
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach(client => client.postMessage({ type: 'NEW_VERSION_AVAILABLE' }));
+};
+
+// Stratégie de fetch
+self.addEventListener('fetch', event => {
+    const { request } = event;
+
+    // Stratégie Stale-While-Revalidate pour l'API
+    if (request.url.includes('/api/calendar')) {
+        event.respondWith(
+            caches.open(DYNAMIC_CACHE).then(cache => {
+                return cache.match(request).then(cachedResponse => {
+                    const fetchPromise = fetch(request).then(networkResponse => {
+                        if (networkResponse.ok) {
+                            cache.put(request, networkResponse.clone());
+                            // Si on avait une version en cache, on notifie qu'une nouvelle est peut-être là
+                            if (cachedResponse) {
+                                notifyClients();
+                            }
+                        }
+                        return networkResponse;
+                    });
+                    // On retourne la réponse du cache immédiatement, ou on attend le réseau si pas de cache
+                    return cachedResponse || fetchPromise;
+                });
+            })
+        );
+    } else {
+        // Stratégie Cache-First pour les assets statiques
+        event.respondWith(
+            caches.match(request).then(response => {
+                return response || fetch(request);
+            })
+        );
+    }
 });

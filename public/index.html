@@ -23,7 +23,7 @@
 
     <nav>
         <button id="prev-week-btn">&lt; Sem. Préc.</button>
-        <h2 id="current-week-info">Chargement...</h2>
+        <button id="today-btn">Aujourd'hui</button> <h2 id="current-week-info">Chargement...</h2>
         <button id="next-week-btn">Sem. Suiv. &gt;</button>
     </nav>
 
@@ -36,6 +36,21 @@
             - Version : <span id="commit-version">chargement...</span>
         </p>
     </footer>
+    
+    <div id="event-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+            <h2 id="modal-title"></h2>
+            <p id="modal-time"></p>
+            <p id="modal-location"></p>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+
+    <div id="update-notification" class="update-notification">
+        Une nouvelle version est disponible.
+        <button id="update-btn">Mettre à jour</button>
+    </div>
 
     <script src="script.js"></script>
     <script>
