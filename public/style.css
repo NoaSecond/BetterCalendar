@@ -143,6 +143,27 @@ main {
     opacity: 0.7;
 }
 
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    transition: all 0.3s;
+}
+
+footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
 /* Couleurs par type de cours */
 .course-cm { border-left-color: #3b82f6; background-color: var(--course-cm-bg); }
 .course-td { border-left-color: #22c55e; background-color: var(--course-td-bg); }

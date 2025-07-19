@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- État de l'application ---
     let allEvents = [];
     let currentDate = new Date();
-    let currentView = 'week'; // 'week' ou 'list'
+    
+    // Si la largeur de la fenêtre est inférieure ou égale à 768px (tablettes/téléphones), on passe en vue liste.
+    let currentView = window.innerWidth <= 768 ? 'list' : 'week';
 
     // --- Fonctions utilitaires ---
 
@@ -54,21 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderCalendar = () => {
         calendarContainer.innerHTML = ''; // Vider le conteneur
 
-        // Obtenir le début et la fin de la semaine actuelle
         const firstDayOfWeek = new Date(currentDate);
         const day = currentDate.getDay();
-        const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1); // Lundi comme premier jour
+        const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1);
         firstDayOfWeek.setDate(diff);
 
         const lastDayOfWeek = new Date(firstDayOfWeek);
         lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
         
-        // Mettre à jour l'info de la semaine
         const weekNum = getWeekNumber(currentDate);
         const options = { month: 'long', day: 'numeric' };
         currentWeekInfo.textContent = `Semaine ${weekNum} (${firstDayOfWeek.toLocaleDateString('fr-FR', options)} - ${lastDayOfWeek.toLocaleDateString('fr-FR', options)})`;
 
-        // Filtrer les événements pour la semaine affichée
         const eventsThisWeek = allEvents.filter(event => {
             const eventDate = event.start;
             return eventDate >= firstDayOfWeek && eventDate <= new Date(lastDayOfWeek.getTime() + 86400000 - 1);
@@ -178,7 +177,23 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
+    const fetchVersion = async () => {
+        const versionSpan = document.getElementById('commit-version');
+        try {
+            const response = await fetch('https://api.github.com/repos/NoaSecond/BetterCalendar/commits/main');
+            if (!response.ok) throw new Error('Réponse du réseau non valide');
+            const data = await response.json();
+            const commitHash = data.sha.substring(0, 7);
+            versionSpan.textContent = commitHash;
+        } catch (error) {
+            console.error('Erreur lors de la récupération de la version du commit:', error);
+            versionSpan.textContent = 'indisponible';
+        }
+    };
+
     // --- Initialisation ---
+    viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
+
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -186,4 +201,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fetchAndRenderCalendar();
+    fetchVersion();
 });
