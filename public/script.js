@@ -63,9 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const day = currentDate.getDay();
         const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1);
         firstDayOfWeek.setDate(diff);
+        firstDayOfWeek.setHours(0, 0, 0, 0);
 
         const lastDayOfWeek = new Date(firstDayOfWeek);
         lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+        lastDayOfWeek.setHours(23, 59, 59, 999);
 
         const weekNum = getWeekNumber(currentDate);
         const options = { month: 'long', day: 'numeric' };
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const eventsThisWeek = allEvents.filter(event => {
             const eventDate = event.start;
-            return eventDate >= firstDayOfWeek && eventDate <= new Date(lastDayOfWeek.getTime() + 86400000 - 1);
+            return eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek;
         });
 
         calendarContainer.innerHTML = '';
@@ -98,7 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             dayHeader.className = 'day-header';
             dayHeader.textContent = `${days[i]} ${currentDateInLoop.getDate()}`;
             dayContainer.appendChild(dayHeader);
-            const eventsForDay = events.filter(e => e.start.getDay() === (i + 1) % 7);
+            // Filtrer les événements pour ce jour spécifique en comparant les dates exactes
+            const eventsForDay = events.filter(event => {
+                const eventDate = new Date(event.start);
+                const currentDay = new Date(currentDateInLoop);
+                return eventDate.toDateString() === currentDay.toDateString();
+            });
             eventsForDay.forEach(event => dayContainer.appendChild(createEventCard(event)));
             weekViewContainer.appendChild(dayContainer);
         }
