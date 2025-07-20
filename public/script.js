@@ -200,7 +200,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateNotification = document.getElementById('update-notification');
     const updateBtn = document.getElementById('update-btn');
     navigator.serviceWorker.addEventListener('message', event => { if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') updateNotification.classList.add('show'); });
-    updateBtn.addEventListener('click', () => window.location.reload());
+    updateBtn.addEventListener('click', () => {
+        caches.keys().then(keys => {
+            return Promise.all(keys.map(key => caches.delete(key)));
+        }).then(() => {
+            console.log('All caches cleared.');
+            window.location.reload();
+        });
+    });
 
     // --- Initialisation de l'Application ---
     viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';

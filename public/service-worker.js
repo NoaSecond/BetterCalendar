@@ -14,7 +14,10 @@ const STATIC_ASSETS = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(STATIC_CACHE)
-            .then(cache => cache.addAll(STATIC_ASSETS))
+            .then(cache => {
+                console.log('Service Worker: Caching static assets');
+                return cache.addAll(STATIC_ASSETS);
+            })
     );
 });
 
@@ -24,7 +27,10 @@ self.addEventListener('activate', event => {
         caches.keys().then(keys => {
             return Promise.all(keys
                 .filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
-                .map(key => caches.delete(key))
+                .map(key => {
+                    console.log(`Service Worker: Deleting old cache: ${key}`);
+                    return caches.delete(key);
+                })
             );
         })
     );
