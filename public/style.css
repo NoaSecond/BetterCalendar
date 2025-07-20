@@ -169,6 +169,18 @@ footer a:hover {
     opacity: 0.8;
 }
 
+.event-teachers {
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+    font-style: italic;
+    opacity: 0.9 !important;
+}
+
+.event-teachers.no-teacher {
+    opacity: 0.6 !important;
+    color: #888;
+}
+
 .no-class-message {
     text-align: center;
     padding: 3rem;

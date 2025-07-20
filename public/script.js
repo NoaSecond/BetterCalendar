@@ -39,6 +39,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatTime = (date) => date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+    const extractTeachers = (description) => {
+        if (!description) return null;
+        
+        // Les enseignants sont généralement en fin de description, après les codes de cours
+        // On cherche des noms en majuscules (format: NOM Prénom)
+        const lines = description.split('\n').filter(line => line.trim());
+        const teachers = [];
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            // Cherche des lignes qui ressemblent à des noms d'enseignants (MAJUSCULES Minuscules)
+            if (/^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ\s]+\s+[A-Za-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ]+/.test(trimmed) && 
+                !trimmed.includes('-') && 
+                !trimmed.includes('M1') && 
+                !trimmed.includes('M2') && 
+                !trimmed.includes('CM') && 
+                !trimmed.includes('TD') && 
+                !trimmed.includes('TP') &&
+                trimmed.length > 3 && 
+                trimmed.length < 50) {
+                teachers.push(trimmed);
+            }
+        }
+        
+        return teachers.length > 0 ? teachers : null;
+    };
+
     // --- Logique Principale du Calendrier ---
     const fetchAndRenderCalendar = async () => {
         skeletonLoader.style.display = 'grid';
@@ -139,7 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
         time.textContent = `⏰ ${formatTime(event.start)} - ${formatTime(event.end)}`;
         const location = document.createElement('p');
         location.textContent = `📍 ${event.location || 'Non spécifié'}`;
-        card.append(title, time, location);
+        
+        // Ajouter les enseignants s'ils existent
+        const teachers = extractTeachers(event.description);
+        const teachersElement = document.createElement('p');
+        if (teachers && teachers.length > 0) {
+            teachersElement.textContent = `👤 ${teachers.join(', ')}`;
+            teachersElement.className = 'event-teachers';
+        } else {
+            teachersElement.textContent = '👤 Enseignant non spécifié';
+            teachersElement.className = 'event-teachers no-teacher';
+        }
+        
+        card.append(title, time, location, teachersElement);
         card.addEventListener('click', () => openModal(event));
         return card;
     };
@@ -148,7 +187,19 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = event.summary;
         modalTime.textContent = `⏰ ${formatTime(event.start)} - ${formatTime(event.end)}`;
         modalLocation.textContent = `📍 ${event.location || 'Non spécifié'}`;
-        modalDescription.innerHTML = event.description ? event.description.replace(/\\n/g, '<br>') : 'Pas de description.';
+        
+        // Ajouter les enseignants dans la modal
+        const teachers = extractTeachers(event.description);
+        const teachersText = teachers && teachers.length > 0 
+            ? `👤 ${teachers.join(', ')}` 
+            : '👤 Enseignant non spécifié';
+        
+        modalDescription.innerHTML = `
+            <p style="margin-bottom: 10px; font-weight: 500;">${teachersText}</p>
+            <div style="border-top: 1px solid #eee; padding-top: 10px;">
+                ${event.description ? event.description.replace(/\\n/g, '<br>') : 'Pas de description.'}
+            </div>
+        `;
         eventModal.classList.add('visible');
     };
 
