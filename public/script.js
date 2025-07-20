@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const weekNum = getWeekNumber(currentDate);
         const options = { month: 'long', day: 'numeric' };
-        currentWeekInfo.textContent = `Semaine ${weekNum} (${firstDayOfWeek.toLocaleDateString('fr-FR', options)} - ${lastDayOfWeek.toLocaleDateString('fr-FR', options)})`;
+        currentWeekInfo.innerHTML = `Semaine ${weekNum} <br>(${firstDayOfWeek.toLocaleDateString('fr-FR', options)} - ${lastDayOfWeek.toLocaleDateString('fr-FR', options)})`;
 
         const eventsThisWeek = allEvents.filter(event => {
             const eventDate = event.start;

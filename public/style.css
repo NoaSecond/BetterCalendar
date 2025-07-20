@@ -344,6 +344,10 @@ footer a:hover {
     /* Donne un léger effet de glissement vers le bas */
 }
 
+#current-week-info br {
+    display: none;
+}
+
 /* --- Ajustements pour Tablettes et Mobiles --- */
 
 /* Pour les tablettes (écrans jusqu'à 1024px) */
@@ -360,6 +364,10 @@ footer a:hover {
 
 /* Pour les téléphones (écrans jusqu'à 768px) */
 @media (max-width: 768px) {
+
+    #current-week-info br {
+        display: inline;
+    }
 
     nav h2 {
         font-size: 0.9rem;
