@@ -69,6 +69,7 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 ### ✨ Nouvelles Fonctionnalités
 - **Affichage des Enseignants** : Extraction automatique et affichage des noms d'enseignants depuis les descriptions d'événements
 - **Modal d'Informations** : Fenêtre détaillée avec toutes les informations du cours (enseignant, description complète)
+- **Swiper pour changer de semaine** : Ajout de la navigation par glissement (swipe) sur mobile pour passer d'une semaine à l'autre facilement
 
 ### 🐛 Corrections de Bugs
 - **Gestion des Fuseaux Horaires** : Correction du problème d'affichage des événements du matin (correction critique du calcul des plages horaires)
