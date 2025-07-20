@@ -12,17 +12,19 @@ Une application web simple et moderne pour visualiser l'emploi du temps du Maste
   - **Codes Couleurs** : Détection automatique des types de cours (CM, TD, TP, Projet) pour une meilleure lisibilité.
   - **Thème Clair & Sombre** : Adaptez l'interface à vos préférences.
   - **Progressive Web App (PWA)** : Installez l'application directement depuis votre navigateur pour un accès rapide.
-  - **Navigation Intuitive** : Passez d'une semaine à l'autre en un clic.
+  - **Navigation Intuitive** : Passez d'une semaine à l'autre en un clic, retournez à la semaine actuelle instantanément.
+  - **Détails d'Événements** : Cliquez sur un cours pour voir les informations complètes (description, enseignant, horaires).
   - **Backend Serverless** : Un serveur Node.js/Express gère la récupération des données `.ics` pour plus de fiabilité.
 
 -----
 
 ## 🛠️ Stack Technique
 
-  - **Frontend** : HTML5, CSS3, JavaScript
+  - **Frontend** : HTML5, CSS3, JavaScript (ES6+)
   - **Backend** : Node.js, Vercel Serverless Functions
-  - **Parsing ICS** : `node-ical`
-  - **Requêtes HTTP** : `axios`
+  - **Parsing ICS** : `node-ical` pour l'analyse des fichiers calendrier
+  - **Requêtes HTTP** : `axios` pour les appels API
+  - **Gestion des Dates** : JavaScript natif avec support des fuseaux horaires
 
 -----
 
@@ -55,10 +57,27 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
     Cette commande va simuler l'environnement Vercel sur votre machine.
 
     ```bash
-    vercel dev
+    vercel dev --listen 3001
     ```
 
-5.  **Ouvrez votre navigateur** et rendez-vous sur [http://localhost:3000](http://localhost:3000).
+5.  **Ouvrez votre navigateur** et rendez-vous sur [http://localhost:3001](http://localhost:3001).
+
+-----
+
+## 🔧 Améliorations Récentes
+
+### ✨ Nouvelles Fonctionnalités
+- **Affichage des Enseignants** : Extraction automatique et affichage des noms d'enseignants depuis les descriptions d'événements
+- **Modal d'Informations** : Fenêtre détaillée avec toutes les informations du cours (enseignant, description complète)
+
+### 🐛 Corrections de Bugs
+- **Gestion des Fuseaux Horaires** : Correction du problème d'affichage des événements du matin (correction critique du calcul des plages horaires)
+- **Navigation Hebdomadaire** : Amélioration de la logique de navigation entre les semaines
+- **Filtrage des Événements** : Correction du filtrage des événements par jour pour la vue hebdomadaire
+
+### 🎨 Améliorations de l'Interface
+- **Styles des Enseignants** : Style spécifique pour l'affichage des enseignants (italique, taille réduite)
+- **Gestion des Données Manquantes** : Affichage élégant quand les informations d'enseignants ne sont pas disponibles
 
 -----
 
@@ -67,6 +86,24 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 ### Changer le lien du calendrier
 
 Le lien vers le fichier `.ics` est défini dans `api/calendar.js`. Modifiez la constante `icsUrl` pour utiliser un autre calendrier.
+
+### Structure du Projet
+
+```
+BetterCalendar/
+├── api/
+│   └── calendar.js          # API serverless pour récupérer les données .ics
+├── public/
+│   ├── index.html          # Page principale de l'application
+│   ├── script.js           # Logique JavaScript (navigation, affichage, extraction enseignants)
+│   ├── style.css           # Styles CSS (thèmes clair/sombre, responsive)
+│   ├── manifest.json       # Configuration PWA
+│   ├── service-worker.js   # Service Worker pour la mise en cache
+│   └── images/
+│       └── icon.png        # Icône de l'application
+├── package.json            # Dépendances et scripts npm
+└── README.md              # Documentation du projet
+```
 
 ## 🤝 Contribuer
 
