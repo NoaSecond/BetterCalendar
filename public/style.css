@@ -53,6 +53,12 @@ header {
     z-index: 100;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 header h1 {
     margin: 0;
     font-size: 1.25rem;
@@ -355,7 +361,11 @@ footer a:hover {
 /* Pour les téléphones (écrans jusqu'à 768px) */
 @media (max-width: 768px) {
 
-    /* Masque le bouton "Aujourd'hui" pour gagner de la place */
+    nav h2 {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
     #today-btn {
         display: none;
     }
