@@ -42,14 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const extractTeachers = (description) => {
         if (!description) return null;
         
-        // Les enseignants sont généralement en fin de description, après les codes de cours
-        // On cherche des noms en majuscules (format: NOM Prénom)
         const lines = description.split('\n').filter(line => line.trim());
         const teachers = [];
         
         for (const line of lines) {
             const trimmed = line.trim();
-            // Cherche des lignes qui ressemblent à des noms d'enseignants (MAJUSCULES Minuscules)
             if (/^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ\s]+\s+[A-Za-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ]+/.test(trimmed) && 
                 !trimmed.includes('-') && 
                 !trimmed.includes('M1') && 
@@ -127,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dayHeader.className = 'day-header';
             dayHeader.textContent = `${days[i]} ${currentDateInLoop.getDate()}`;
             dayContainer.appendChild(dayHeader);
-            // Filtrer les événements pour ce jour spécifique en comparant les dates exactes
             const eventsForDay = events.filter(event => {
                 const eventDate = new Date(event.start);
                 const currentDay = new Date(currentDateInLoop);
@@ -167,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const location = document.createElement('p');
         location.textContent = `📍 ${event.location || 'Non spécifié'}`;
         
-        // Ajouter les enseignants s'ils existent
         const teachers = extractTeachers(event.description);
         const teachersElement = document.createElement('p');
         if (teachers && teachers.length > 0) {
@@ -188,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTime.textContent = `⏰ ${formatTime(event.start)} - ${formatTime(event.end)}`;
         modalLocation.textContent = `📍 ${event.location || 'Non spécifié'}`;
         
-        // Ajouter les enseignants dans la modal
         const teachers = extractTeachers(event.description);
         const teachersText = teachers && teachers.length > 0 
             ? `👤 ${teachers.join(', ')}` 
@@ -246,6 +240,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     modalCloseBtn.addEventListener('click', () => eventModal.classList.remove('visible'));
     eventModal.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.classList.remove('visible'); });
+
+    // --- Gestion du Swipe pour la Navigation ---
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    calendarContainer.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    calendarContainer.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    const handleSwipe = () => {
+        const swipeThreshold = 50; // La distance minimale en pixels pour considérer un swipe
+        if (touchStartX - touchEndX > swipeThreshold) {
+            // Swipe vers la gauche (semaine suivante)
+            handleWeekChange('next');
+        } else if (touchEndX - touchStartX > swipeThreshold) {
+            // Swipe vers la droite (semaine précédente)
+            handleWeekChange('prev');
+        }
+    };
 
     // --- Logique de la PWA ---
     const updateNotification = document.getElementById('update-notification');
