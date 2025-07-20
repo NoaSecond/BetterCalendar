@@ -4,6 +4,15 @@ Une application web simple et moderne pour visualiser l'emploi du temps du Maste
 
 [App Web Vercel](https://better-calendar-sand.vercel.app)
 
+## 📖 Sommaire
+
+- [✨ Fonctionnalités](#-fonctionnalités)
+- [🛠️ Stack Technique](#️-stack-technique)
+- [🚀 Installation et Lancement](#-installation-et-lancement)
+- [🔧 Améliorations Récentes](#-améliorations-récentes)
+- [🎨 Personnalisation](#-personnalisation)
+- [🤝 Contribuer](#-contribuer)
+
 -----
 
 ## ✨ Fonctionnalités
