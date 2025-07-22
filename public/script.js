@@ -268,9 +268,127 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logique de la PWA ---
     const updateNotification = document.getElementById('update-notification');
     const updateBtn = document.getElementById('update-btn');
+    const installBtn = document.getElementById('install-btn');
+    const installNotification = document.getElementById('install-notification');
+    const installPopupBtn = document.getElementById('install-popup-btn');
+    const installDismissBtn = document.getElementById('install-dismiss-btn');
     
     // Variable pour éviter les notifications immédiatement après le chargement
     let pageLoadTime = Date.now();
+    let deferredPrompt;
+    let installPopupDismissed = localStorage.getItem('installPopupDismissed') === 'true';
+    
+    // Vérifier si c'est une session après mise à jour ou vidage de cache
+    const lastSessionTime = localStorage.getItem('lastSessionTime');
+    const currentTime = Date.now();
+    const timeSinceLastSession = lastSessionTime ? currentTime - parseInt(lastSessionTime) : 0;
+    const cacheCleared = sessionStorage.getItem('cacheCleared') === 'true';
+    
+    // Si plus de 30 minutes se sont écoulées, première visite, ou cache vidé, réinitialiser la popup
+    if (!lastSessionTime || timeSinceLastSession > 30 * 60 * 1000 || cacheCleared) {
+        localStorage.removeItem('installPopupDismissed');
+        installPopupDismissed = false;
+        sessionStorage.removeItem('cacheCleared');
+    }
+    
+    // Enregistrer l'heure de cette session
+    localStorage.setItem('lastSessionTime', currentTime.toString());
+    
+    // Fonction pour afficher la popup d'installation
+    const showInstallPopup = () => {
+        if (!installPopupDismissed && !localStorage.getItem('pwaInstalled')) {
+            setTimeout(() => {
+                installNotification.classList.add('show');
+            }, 2000);
+        }
+    };
+    
+    // Gestion de l'installation PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('beforeinstallprompt event fired');
+        // Empêcher l'affichage automatique du mini-infobar
+        e.preventDefault();
+        // Stocker l'événement pour l'utiliser plus tard
+        deferredPrompt = e;
+        
+        // Afficher le bouton dans le header
+        installBtn.style.display = 'block';
+        
+        // Afficher la popup si les conditions sont remplies
+        showInstallPopup();
+    });
+
+    // Si pas d'événement beforeinstallprompt mais conditions remplies, afficher quand même la popup
+    setTimeout(() => {
+        if (!deferredPrompt && !localStorage.getItem('pwaInstalled')) {
+            // Vérifier si on peut détecter que c'est une PWA installable
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isInWebAppiOS = (window.navigator.standalone === true);
+            const isInstalled = isStandalone || isInWebAppiOS;
+            
+            if (!isInstalled) {
+                // Afficher le bouton header même sans beforeinstallprompt
+                installBtn.style.display = 'block';
+                // Afficher la popup si cache vidé ou première visite
+                if (cacheCleared || !lastSessionTime) {
+                    showInstallPopup();
+                }
+            }
+        }
+    }, 3000);
+
+    // Fonction pour installer l'app
+    const installApp = async () => {
+        if (!deferredPrompt) {
+            console.log('Pas de prompt d\'installation disponible - redirection vers instructions');
+            // Si pas de prompt disponible, afficher des instructions
+            alert('Pour installer cette application :\n\n• Chrome/Edge : Menu ⋮ > "Installer l\'application"\n• Firefox : Menu ≡ > "Installer cette application"\n• Safari : Partager 📤 > "Sur l\'écran d\'accueil"');
+            return;
+        }
+        
+        // Afficher le prompt d'installation
+        deferredPrompt.prompt();
+        
+        // Attendre la réponse de l'utilisateur
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        
+        // Cacher la popup et le bouton si l'installation a réussi
+        if (outcome === 'accepted') {
+            installNotification.classList.remove('show');
+            installBtn.style.display = 'none';
+        }
+        
+        // Reset du prompt après utilisation
+        deferredPrompt = null;
+    };
+
+    // Gestionnaires pour les boutons d'installation
+    installPopupBtn.addEventListener('click', () => {
+        installNotification.classList.remove('show');
+        installApp();
+    });
+
+    installDismissBtn.addEventListener('click', () => {
+        installNotification.classList.remove('show');
+        // Marquer que l'utilisateur a rejeté la popup pour cette session
+        localStorage.setItem('installPopupDismissed', 'true');
+        // Enregistrer le timestamp du rejet pour permettre la re-proposition plus tard
+        localStorage.setItem('installPopupDismissedTime', Date.now().toString());
+        installPopupDismissed = true;
+    });
+
+    installBtn.addEventListener('click', installApp);
+
+    // Masquer le bouton si l'app est déjà installée
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA installée avec succès');
+        installBtn.style.display = 'none';
+        installNotification.classList.remove('show');
+        deferredPrompt = null;
+        // Marquer l'installation comme terminée
+        localStorage.setItem('pwaInstalled', 'true');
+    });
     
     navigator.serviceWorker.addEventListener('message', event => { 
         if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
@@ -287,6 +405,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return Promise.all(keys.map(key => caches.delete(key)));
         }).then(() => {
             console.log('All caches cleared.');
+            // Marquer que le cache a été vidé pour la prochaine session
+            sessionStorage.setItem('cacheCleared', 'true');
+            // Réinitialiser la popup d'installation après vidage du cache
+            localStorage.removeItem('installPopupDismissed');
+            localStorage.removeItem('installPopupDismissedTime');
+            localStorage.removeItem('lastSessionTime');
             window.location.reload();
         });
     });

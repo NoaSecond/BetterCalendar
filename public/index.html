@@ -21,6 +21,7 @@
              <button id="today-btn">Aujourd'hui</button>
         </div>
         <div class="controls">
+            <button id="install-btn" class="install-btn" style="display: none;">📱 Installer</button>
             <button id="view-toggle-btn">Vue Liste</button>
             <button id="theme-toggle-btn">🌙</button>
         </div>
@@ -85,12 +86,40 @@
         <button id="update-btn">Mettre à jour</button>
     </div>
 
+    <div id="install-notification" class="install-notification">
+        <div class="install-content">
+            <span>📱 Installer l'application pour un accès rapide</span>
+            <div class="install-actions">
+                <button id="install-popup-btn" class="install-popup-accept">Installer</button>
+                <button id="install-dismiss-btn" class="install-popup-dismiss">Plus tard</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => console.log('ServiceWorker registration successful'))
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                        
+                        // Vérifier si c'est une mise à jour du service worker
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // Service worker mis à jour, réinitialiser la popup d'installation
+                                        localStorage.removeItem('installPopupDismissed');
+                                        localStorage.removeItem('installPopupDismissedTime');
+                                        localStorage.removeItem('lastSessionTime');
+                                        console.log('Service Worker updated, install popup reset');
+                                    }
+                                });
+                            }
+                        });
+                    })
                     .catch(err => console.log('ServiceWorker registration failed: ', err));
             });
         }
