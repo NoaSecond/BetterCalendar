@@ -44,7 +44,7 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 1.  **Clonez le dépôt**
 
     ```bash
-    git clone [https://github.com/NoaSecond/BetterCalendar](https://github.com/NoaSecond/BetterCalendar)
+    git clone https://github.com/NoaSecond/BetterCalendar
     cd BetterCalendar
     ```
 
@@ -84,10 +84,12 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 - **Gestion des Fuseaux Horaires** : Correction du problème d'affichage des événements du matin (correction critique du calcul des plages horaires)
 - **Navigation Hebdomadaire** : Amélioration de la logique de navigation entre les semaines
 - **Filtrage des Événements** : Correction du filtrage des événements par jour pour la vue hebdomadaire
+- **Notifications de Mise à Jour** : Correction de la popup qui s'affichait même sans changements réels
 
 ### 🎨 Améliorations de l'Interface
 - **Styles des Enseignants** : Style spécifique pour l'affichage des enseignants (italique, taille réduite)
 - **Gestion des Données Manquantes** : Affichage élégant quand les informations d'enseignants ne sont pas disponibles
+- **Détection de Mises à Jour** : Notification intelligente lors de modifications de fichiers source
 
 -----
 
@@ -102,17 +104,17 @@ Le lien vers le fichier `.ics` est défini dans `api/calendar.js`. Modifiez la c
 ```
 BetterCalendar/
 ├── api/
-│   └── calendar.js          # API serverless pour récupérer les données .ics
+│   └── calendar.js         # API serverless pour récupérer les données .ics
 ├── public/
 │   ├── index.html          # Page principale de l'application
-│   ├── script.js           # Logique JavaScript (navigation, affichage, extraction enseignants)
-│   ├── style.css           # Styles CSS (thèmes clair/sombre, responsive)
+│   ├── script.js           # Logique JavaScript
+│   ├── style.css           # Styles CSS
 │   ├── manifest.json       # Configuration PWA
 │   ├── service-worker.js   # Service Worker pour la mise en cache
 │   └── images/
 │       └── icon.png        # Icône de l'application
 ├── package.json            # Dépendances et scripts npm
-└── README.md              # Documentation du projet
+└── README.md               # Documentation du projet
 ```
 
 ## 🤝 Contribuer
