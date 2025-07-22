@@ -361,6 +361,65 @@ footer a:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Bouton flottant "Aujourd'hui" pour mobile */
+.today-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1500;
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.today-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.today-fab:active {
+    transform: scale(0.95);
+}
+
+.today-fab.show {
+    display: block;
+    animation: fabSlideUp 0.3s ease-out;
+}
+
+.today-fab.hide {
+    animation: fabSlideDown 0.3s ease-in;
+}
+
+@keyframes fabSlideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fabSlideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+}
+
 /* --- Transitions & Animations --- */
 .event-card,
 .day-column,
@@ -460,6 +519,25 @@ footer a:hover {
 
     #today-btn {
         display: none;
+    }
+
+    /* Masquer le bouton de vue sur mobile si l'installation est disponible */
+    .install-available #view-toggle-btn {
+        display: none;
+    }
+
+    /* Ajustements du bouton flottant pour mobile */
+    .today-fab {
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        right: 16px;
+        width: 52px;
+        height: 52px;
+        font-size: 1.3rem;
+    }
+
+    /* Repositionner le FAB si la notification de mise à jour est visible */
+    .update-notification.show ~ .today-fab {
+        bottom: calc(90px + env(safe-area-inset-bottom));
     }
 
     .update-notification {

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevWeekBtn = document.getElementById('prev-week-btn');
     const nextWeekBtn = document.getElementById('next-week-btn');
     const todayBtn = document.getElementById('today-btn');
+    const todayFab = document.getElementById('today-fab');
     const currentWeekInfo = document.getElementById('current-week-info');
     const viewToggleBtn = document.getElementById('view-toggle-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -201,6 +202,52 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.setAttribute('aria-label', isDark ? 'Passer au mode clair' : 'Passer au mode sombre');
     };
 
+    // Fonction pour vérifier si on est sur la semaine actuelle
+    const isCurrentWeek = () => {
+        const today = new Date();
+        const todayWeekStart = new Date(today);
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+        todayWeekStart.setDate(diff);
+        todayWeekStart.setHours(0, 0, 0, 0);
+
+        const currentWeekStart = new Date(currentDate);
+        const currentDay = currentDate.getDay();
+        const currentDiff = currentDate.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+        currentWeekStart.setDate(currentDiff);
+        currentWeekStart.setHours(0, 0, 0, 0);
+
+        return todayWeekStart.getTime() === currentWeekStart.getTime();
+    };
+
+    // Fonction pour gérer l'affichage du bouton flottant
+    const updateTodayFab = () => {
+        // Afficher seulement sur mobile (768px ou moins) et si on n'est pas sur la semaine actuelle
+        const isMobile = window.innerWidth <= 768;
+        const shouldShow = isMobile && !isCurrentWeek();
+        
+        if (shouldShow) {
+            todayFab.style.display = 'block';
+            todayFab.classList.add('show');
+            todayFab.classList.remove('hide');
+        } else {
+            todayFab.classList.add('hide');
+            todayFab.classList.remove('show');
+            setTimeout(() => {
+                if (todayFab.classList.contains('hide')) {
+                    todayFab.style.display = 'none';
+                }
+            }, 300);
+        }
+    };
+
+    // Fonction pour aller à aujourd'hui
+    const goToToday = () => {
+        currentDate = new Date();
+        renderCalendar();
+        updateTodayFab();
+    };
+
     const fetchVersion = async () => {
         const versionSpan = document.getElementById('commit-version');
         try {
@@ -233,13 +280,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             currentDate.setDate(currentDate.getDate() + (direction === 'prev' ? -7 : 7));
             renderCalendar();
+            updateTodayFab();
             calendarContainer.classList.remove('calendar-fading');
         }, 300);
     };
 
     prevWeekBtn.addEventListener('click', () => handleWeekChange('prev'));
     nextWeekBtn.addEventListener('click', () => handleWeekChange('next'));
-    todayBtn.addEventListener('click', () => { currentDate = new Date(); renderCalendar(); });
+    todayBtn.addEventListener('click', goToToday);
+    todayFab.addEventListener('click', goToToday);
     viewToggleBtn.addEventListener('click', () => {
         currentView = currentView === 'week' ? 'list' : 'week';
         viewToggleBtn.textContent = currentView === 'week' ? 'Vue Liste' : 'Vue Semaine';
@@ -253,6 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     modalCloseBtn.addEventListener('click', () => eventModal.classList.remove('visible'));
     eventModal.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.classList.remove('visible'); });
+
+    // Gestionnaire pour les changements de taille d'écran
+    window.addEventListener('resize', updateTodayFab);
 
     // --- Gestion du Swipe pour la Navigation ---
     let touchStartX = 0;
@@ -307,6 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Enregistrer l'heure de cette session
     localStorage.setItem('lastSessionTime', currentTime.toString());
     
+    // Fonction pour gérer l'affichage du bouton d'installation
+    const toggleInstallButton = (show) => {
+        if (show) {
+            installBtn.style.display = 'block';
+            // Ajouter la classe pour masquer le bouton de vue sur mobile
+            document.body.classList.add('install-available');
+        } else {
+            installBtn.style.display = 'none';
+            // Supprimer la classe pour réafficher le bouton de vue
+            document.body.classList.remove('install-available');
+        }
+    };
+    
     // Fonction pour afficher la popup d'installation
     const showInstallPopup = () => {
         if (!installPopupDismissed && !localStorage.getItem('pwaInstalled')) {
@@ -325,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deferredPrompt = e;
         
         // Afficher le bouton dans le header
-        installBtn.style.display = 'block';
+        toggleInstallButton(true);
         
         // Afficher la popup si les conditions sont remplies
         showInstallPopup();
@@ -341,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!isInstalled) {
                 // Afficher le bouton header même sans beforeinstallprompt
-                installBtn.style.display = 'block';
+                toggleInstallButton(true);
                 // Afficher la popup si cache vidé ou première visite
                 if (cacheCleared || !lastSessionTime) {
                     showInstallPopup();
@@ -369,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cacher la popup et le bouton si l'installation a réussi
         if (outcome === 'accepted') {
             installNotification.classList.remove('show');
-            installBtn.style.display = 'none';
+            toggleInstallButton(false);
         }
         
         // Reset du prompt après utilisation
@@ -396,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Masquer le bouton si l'app est déjà installée
     window.addEventListener('appinstalled', () => {
         console.log('PWA installée avec succès');
-        installBtn.style.display = 'none';
+        toggleInstallButton(false);
         installNotification.classList.remove('show');
         deferredPrompt = null;
         // Marquer l'installation comme terminée
@@ -446,4 +511,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     fetchAndRenderCalendar();
     fetchVersion();
+    updateTodayFab();
 });
