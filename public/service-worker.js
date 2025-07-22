@@ -1,11 +1,12 @@
-const STATIC_CACHE = 'majic-static-v1';
-const DYNAMIC_CACHE = 'majic-dynamic-v1';
+const STATIC_CACHE = 'majic-static-v3';
+const DYNAMIC_CACHE = 'majic-dynamic-v3';
 
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/style.css',
     '/script.js',
+    '/service-worker.js',
     '/images/icon.png',
     '/manifest.json'
 ];
@@ -51,13 +52,19 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             caches.open(DYNAMIC_CACHE).then(cache => {
                 return cache.match(request).then(cachedResponse => {
-                    const fetchPromise = fetch(request).then(networkResponse => {
+                    const fetchPromise = fetch(request).then(async networkResponse => {
                         if (networkResponse.ok) {
-                            cache.put(request, networkResponse.clone());
-                            // Si on avait une version en cache, on notifie qu'une nouvelle est peut-être là
+                            // Comparaison du contenu pour éviter les notifications inutiles
                             if (cachedResponse) {
-                                notifyClients();
+                                const cachedText = await cachedResponse.text();
+                                const networkText = await networkResponse.clone().text();
+                                
+                                // Ne notifier que si le contenu a vraiment changé
+                                if (cachedText !== networkText) {
+                                    notifyClients();
+                                }
                             }
+                            cache.put(request, networkResponse.clone());
                         }
                         return networkResponse;
                     });
@@ -67,10 +74,30 @@ self.addEventListener('fetch', event => {
             })
         );
     } else {
-        // Stratégie Cache-First pour les assets statiques
+        // Stratégie Stale-While-Revalidate pour tous les assets statiques
         event.respondWith(
-            caches.match(request).then(response => {
-                return response || fetch(request);
+            caches.open(STATIC_CACHE).then(cache => {
+                return cache.match(request).then(cachedResponse => {
+                    const fetchPromise = fetch(request).then(async networkResponse => {
+                        if (networkResponse.ok) {
+                            // Comparaison du contenu pour détecter les changements
+                            if (cachedResponse) {
+                                const cachedText = await cachedResponse.text();
+                                const networkText = await networkResponse.clone().text();
+                                
+                                // Notifier si le contenu a changé
+                                if (cachedText !== networkText) {
+                                    console.log(`Service Worker: File updated: ${request.url}`);
+                                    notifyClients();
+                                }
+                            }
+                            cache.put(request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    });
+                    // On retourne la réponse du cache immédiatement, ou on attend le réseau si pas de cache
+                    return cachedResponse || fetchPromise;
+                });
             })
         );
     }
