@@ -337,6 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const installNotification = document.getElementById('install-notification');
     const installPopupBtn = document.getElementById('install-popup-btn');
     const installDismissBtn = document.getElementById('install-dismiss-btn');
+    const offlineNotification = document.getElementById('offline-notification');
+    const offlineDismissBtn = document.getElementById('offline-dismiss-btn');
     
     // Variable pour éviter les notifications immédiatement après le chargement
     let pageLoadTime = Date.now();
@@ -458,6 +460,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     installBtn.addEventListener('click', installApp);
 
+    // Fonction pour afficher la notification hors-ligne
+    const showOfflineNotification = () => {
+        offlineNotification.classList.add('show');
+        // Auto-masquer après 10 secondes
+        setTimeout(() => {
+            offlineNotification.classList.remove('show');
+        }, 10000);
+    };
+
+    // Gestionnaire pour masquer la notification hors-ligne
+    offlineDismissBtn.addEventListener('click', () => {
+        offlineNotification.classList.remove('show');
+    });
+
+    // Détecter les changements de statut réseau
+    window.addEventListener('online', () => {
+        console.log('Connexion rétablie');
+        offlineNotification.classList.remove('show');
+    });
+
+    window.addEventListener('offline', () => {
+        console.log('Connexion perdue - passage en mode hors-ligne');
+        showOfflineNotification();
+    });
+
     // Masquer le bouton si l'app est déjà installée
     window.addEventListener('appinstalled', () => {
         console.log('PWA installée avec succès');
@@ -475,6 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Date.now() - pageLoadTime > 5000) {
                 updateNotification.classList.add('show');
             }
+        } else if (event.data && event.data.type === 'OFFLINE_MODE') {
+            console.log('Message reçu du Service Worker: mode hors-ligne activé');
+            showOfflineNotification();
         }
     });
     

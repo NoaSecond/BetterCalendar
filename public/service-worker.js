@@ -1,5 +1,6 @@
-const STATIC_CACHE = 'majic-static-v5';
-const DYNAMIC_CACHE = 'majic-dynamic-v5';
+const STATIC_CACHE = 'majic-static-v6';
+const DYNAMIC_CACHE = 'majic-dynamic-v6';
+const OFFLINE_CACHE = 'majic-offline-v6';
 
 const STATIC_ASSETS = [
     '/',
@@ -30,7 +31,7 @@ self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys => {
             return Promise.all(keys
-                .filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
+                .filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE && key !== OFFLINE_CACHE)
                 .map(key => {
                     console.log(`Service Worker: Deleting old cache: ${key}`);
                     return caches.delete(key);
@@ -57,11 +58,11 @@ const notifyClients = async () => {
     clients.forEach(client => client.postMessage({ type: 'NEW_VERSION_AVAILABLE' }));
 };
 
-// Stratégie de fetch
+// Stratégie de fetch avec support offline avancé
 self.addEventListener('fetch', event => {
     const { request } = event;
 
-    // Stratégie Stale-While-Revalidate pour l'API
+    // Stratégie Stale-While-Revalidate pour l'API avec cache hors-ligne étendu
     if (request.url.includes('/api/calendar')) {
         event.respondWith(
             caches.open(DYNAMIC_CACHE).then(cache => {
@@ -79,9 +80,36 @@ self.addEventListener('fetch', event => {
                                 }
                             }
                             cache.put(request, networkResponse.clone());
+                            
+                            // Sauvegarder également dans le cache offline avec timestamp
+                            const responseToCache = networkResponse.clone();
+                            responseToCache.headers = new Headers(responseToCache.headers);
+                            responseToCache.headers.append('sw-cache-timestamp', Date.now());
+                            
+                            caches.open(OFFLINE_CACHE).then(offlineCache => {
+                                offlineCache.put(request, responseToCache);
+                            });
                         }
                         return networkResponse;
+                    }).catch(error => {
+                        console.log('Service Worker: Network failed, trying offline cache');
+                        // En cas d'échec réseau, essayer le cache offline
+                        return caches.open(OFFLINE_CACHE).then(offlineCache => {
+                            return offlineCache.match(request).then(offlineResponse => {
+                                if (offlineResponse) {
+                                    // Notifier qu'on est en mode hors-ligne
+                                    self.clients.matchAll().then(clients => {
+                                        clients.forEach(client => {
+                                            client.postMessage({ type: 'OFFLINE_MODE', timestamp: Date.now() });
+                                        });
+                                    });
+                                    return offlineResponse;
+                                }
+                                throw error;
+                            });
+                        });
                     });
+                    
                     // On retourne la réponse du cache immédiatement, ou on attend le réseau si pas de cache
                     return cachedResponse || fetchPromise;
                 });
@@ -108,7 +136,14 @@ self.addEventListener('fetch', event => {
                             cache.put(request, networkResponse.clone());
                         }
                         return networkResponse;
+                    }).catch(error => {
+                        console.log('Service Worker: Network failed for static asset, trying cache');
+                        // En cas d'échec réseau pour assets statiques, utiliser le cache
+                        return cachedResponse || caches.open(OFFLINE_CACHE).then(offlineCache => {
+                            return offlineCache.match(request);
+                        });
                     });
+                    
                     // On retourne la réponse du cache immédiatement, ou on attend le réseau si pas de cache
                     return cachedResponse || fetchPromise;
                 });
