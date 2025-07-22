@@ -107,18 +107,42 @@
                         // Vérifier si c'est une mise à jour du service worker
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
+                            console.log('Service Worker: Update found!');
+                            
                             if (newWorker) {
                                 newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // Service worker mis à jour, réinitialiser la popup d'installation
-                                        localStorage.removeItem('installPopupDismissed');
-                                        localStorage.removeItem('installPopupDismissedTime');
-                                        localStorage.removeItem('lastSessionTime');
-                                        console.log('Service Worker updated, install popup reset');
+                                    console.log('Service Worker: New worker state:', newWorker.state);
+                                    
+                                    if (newWorker.state === 'installed') {
+                                        if (navigator.serviceWorker.controller) {
+                                            // Service worker mis à jour, réinitialiser la popup d'installation
+                                            localStorage.removeItem('installPopupDismissed');
+                                            localStorage.removeItem('installPopupDismissedTime');
+                                            localStorage.removeItem('lastSessionTime');
+                                            console.log('Service Worker updated, install popup reset');
+                                            
+                                            // Afficher la notification de mise à jour
+                                            setTimeout(() => {
+                                                const event = new CustomEvent('sw-update-available');
+                                                window.dispatchEvent(event);
+                                            }, 1000);
+                                        } else {
+                                            // Premier chargement
+                                            console.log('Service Worker: First install');
+                                        }
                                     }
                                 });
                             }
                         });
+                        
+                        // Vérifier s'il y a déjà une mise à jour en attente
+                        if (registration.waiting) {
+                            console.log('Service Worker: Update already waiting');
+                            setTimeout(() => {
+                                const event = new CustomEvent('sw-update-available');
+                                window.dispatchEvent(event);
+                            }, 1000);
+                        }
                     })
                     .catch(err => console.log('ServiceWorker registration failed: ', err));
             });

@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'majic-static-v4';
-const DYNAMIC_CACHE = 'majic-dynamic-v4';
+const STATIC_CACHE = 'majic-static-v5';
+const DYNAMIC_CACHE = 'majic-dynamic-v5';
 
 const STATIC_ASSETS = [
     '/',
@@ -20,12 +20,13 @@ self.addEventListener('install', event => {
                 return cache.addAll(STATIC_ASSETS);
             })
     );
-    // Force le service worker à prendre le contrôle immédiatement
-    self.skipWaiting();
+    // Ne pas forcer l'activation immédiate pour permettre la détection de mise à jour
+    console.log('Service Worker: New version installing...');
 });
 
 // Activation : nettoyage des anciens caches
 self.addEventListener('activate', event => {
+    console.log('Service Worker: Activating new version');
     event.waitUntil(
         caches.keys().then(keys => {
             return Promise.all(keys
@@ -35,9 +36,16 @@ self.addEventListener('activate', event => {
                     return caches.delete(key);
                 })
             );
+        }).then(() => {
+            // Notifier les clients qu'une nouvelle version est disponible
+            return self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                    client.postMessage({ type: 'NEW_VERSION_AVAILABLE' });
+                });
+            });
         })
     );
-    // Prendre le contrôle de toutes les pages immédiatement
+    // Prendre le contrôle des pages après notification
     return self.clients.claim();
 });
 

@@ -207,7 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://api.github.com/repos/NoaSecond/BetterCalendar/commits/main');
             if (!response.ok) throw new Error('Réponse API GitHub non valide');
             const data = await response.json();
-            versionSpan.textContent = data.sha.substring(0, 7);
+            const latestCommit = data.sha.substring(0, 7);
+            versionSpan.textContent = latestCommit;
+            
+            // Vérifier si la version locale est différente
+            const cachedVersion = localStorage.getItem('cachedVersion');
+            if (cachedVersion && cachedVersion !== latestCommit) {
+                console.log(`Version différente détectée: cached=${cachedVersion}, latest=${latestCommit}`);
+                // Afficher la notification de mise à jour après un délai
+                setTimeout(() => {
+                    updateNotification.classList.add('show');
+                }, 3000);
+            }
+            localStorage.setItem('cachedVersion', latestCommit);
+            
         } catch (error) {
             console.error('Erreur lors de la récupération de la version:', error);
             versionSpan.textContent = 'indisponible';
@@ -392,11 +405,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     navigator.serviceWorker.addEventListener('message', event => { 
         if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
+            console.log('Message reçu du Service Worker: nouvelle version disponible');
             // Ne pas afficher la notification si la page vient d'être chargée (moins de 5 secondes)
             if (Date.now() - pageLoadTime > 5000) {
                 updateNotification.classList.add('show');
             }
         }
+    });
+    
+    // Écouter les événements personnalisés de mise à jour
+    window.addEventListener('sw-update-available', () => {
+        console.log('Événement de mise à jour détecté');
+        updateNotification.classList.add('show');
     });
     
     updateBtn.addEventListener('click', () => {
