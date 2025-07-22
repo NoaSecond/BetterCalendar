@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'majic-static-v3';
-const DYNAMIC_CACHE = 'majic-dynamic-v3';
+const STATIC_CACHE = 'majic-static-v4';
+const DYNAMIC_CACHE = 'majic-dynamic-v4';
 
 const STATIC_ASSETS = [
     '/',
@@ -20,6 +20,8 @@ self.addEventListener('install', event => {
                 return cache.addAll(STATIC_ASSETS);
             })
     );
+    // Force le service worker à prendre le contrôle immédiatement
+    self.skipWaiting();
 });
 
 // Activation : nettoyage des anciens caches
@@ -35,10 +37,14 @@ self.addEventListener('activate', event => {
             );
         })
     );
+    // Prendre le contrôle de toutes les pages immédiatement
+    return self.clients.claim();
 });
 
 // Fonction pour notifier l'application
 const notifyClients = async () => {
+    // Attendre un peu avant de notifier pour éviter les notifications au premier chargement
+    await new Promise(resolve => setTimeout(resolve, 2000));
     const clients = await self.clients.matchAll({ type: 'window' });
     clients.forEach(client => client.postMessage({ type: 'NEW_VERSION_AVAILABLE' }));
 };

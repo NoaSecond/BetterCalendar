@@ -268,8 +268,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logique de la PWA ---
     const updateNotification = document.getElementById('update-notification');
     const updateBtn = document.getElementById('update-btn');
-    navigator.serviceWorker.addEventListener('message', event => { if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') updateNotification.classList.add('show'); });
+    
+    // Variable pour éviter les notifications immédiatement après le chargement
+    let pageLoadTime = Date.now();
+    
+    navigator.serviceWorker.addEventListener('message', event => { 
+        if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
+            // Ne pas afficher la notification si la page vient d'être chargée (moins de 5 secondes)
+            if (Date.now() - pageLoadTime > 5000) {
+                updateNotification.classList.add('show');
+            }
+        }
+    });
+    
     updateBtn.addEventListener('click', () => {
+        updateNotification.classList.remove('show');
         caches.keys().then(keys => {
             return Promise.all(keys.map(key => caches.delete(key)));
         }).then(() => {
