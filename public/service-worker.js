@@ -9,7 +9,8 @@ const STATIC_ASSETS = [
     '/script.js',
     '/service-worker.js',
     '/images/icon.png',
-    '/manifest.json'
+    '/manifest.json',
+    '/version.json'
 ];
 
 // Installation : mise en cache des assets statiques

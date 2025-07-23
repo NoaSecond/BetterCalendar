@@ -251,25 +251,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchVersion = async () => {
         const versionSpan = document.getElementById('commit-version');
         try {
+            // Récupérer la version actuelle de l'application
+            const currentVersionResponse = await fetch('/version.json?t=' + Date.now());
+            const currentVersionData = await currentVersionResponse.json();
+            const currentAppVersion = currentVersionData.version;
+            
+            // Récupérer la dernière version du repository
             const response = await fetch('https://api.github.com/repos/NoaSecond/BetterCalendar/commits/main');
             if (!response.ok) throw new Error('Réponse API GitHub non valide');
             const data = await response.json();
             const latestCommit = data.sha.substring(0, 7);
             versionSpan.textContent = latestCommit;
             
-            // Vérifier si la version locale est différente
-            const cachedVersion = localStorage.getItem('cachedVersion');
-            if (cachedVersion && cachedVersion !== latestCommit) {
-                console.log(`Version différente détectée: cached=${cachedVersion}, latest=${latestCommit}`);
+            console.log(`🔍 Version check:`);
+            console.log(`   📱 Version actuelle: ${currentAppVersion}`);
+            console.log(`   🌐 Dernière version: ${latestCommit}`);
+            
+            // Vérifier si une nouvelle version est disponible
+            if (currentAppVersion !== latestCommit) {
+                console.log(`🔄 Nouvelle version disponible! ${currentAppVersion} → ${latestCommit}`);
                 // Afficher la notification de mise à jour après un délai
                 setTimeout(() => {
-                    updateNotification.classList.add('show');
-                }, 3000);
+                    console.log(`⏰ Temps depuis chargement: ${Date.now() - pageLoadTime}ms`);
+                    if (Date.now() - pageLoadTime > 2000) { // Éviter les notifications au premier chargement
+                        console.log(`✅ Affichage de la notification de mise à jour`);
+                        updateNotification.classList.add('show');
+                    } else {
+                        console.log(`⏭️ Notification ignorée (chargement trop récent)`);
+                    }
+                }, 1500);
+            } else {
+                console.log('✅ Application à jour - aucune mise à jour nécessaire');
             }
-            localStorage.setItem('cachedVersion', latestCommit);
+            
+            // Stocker la dernière version vérifiée pour référence
+            localStorage.setItem('lastCheckedVersion', latestCommit);
+            localStorage.setItem('currentAppVersion', currentAppVersion);
             
         } catch (error) {
-            console.error('Erreur lors de la récupération de la version:', error);
+            console.error('❌ Erreur lors de la récupération de la version:', error);
             versionSpan.textContent = 'indisponible';
         }
     };
