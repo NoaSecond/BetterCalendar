@@ -200,6 +200,49 @@ footer a:hover {
     opacity: 0.7;
 }
 
+.retry-btn {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.retry-btn:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.retry-btn:active {
+    transform: translateY(0);
+}
+
+.retry-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.retry-btn:disabled:hover {
+    background-color: #ccc;
+    transform: none;
+}
+
+#retry-status {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
 /* Styles pour le bouton Aujourd'hui */
 #today-btn {
     padding: 0.5rem 1rem;
