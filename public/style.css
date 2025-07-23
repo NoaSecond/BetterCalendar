@@ -364,7 +364,7 @@ footer a:hover {
 /* Styles pour la notification hors-ligne */
 .offline-notification {
     position: fixed;
-    top: -100px;
+    top: -150px;
     left: 0;
     right: 0;
     background-color: #ff9800;
