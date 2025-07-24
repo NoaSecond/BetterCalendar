@@ -76,22 +76,14 @@ Pour lancer le projet en local sur votre machine, suivez ces étapes :
 ## 🔧 Améliorations Récentes
 
 ### ✨ Nouvelles Fonctionnalités
-- **Affichage des Enseignants** : Extraction automatique et affichage des noms d'enseignants depuis les descriptions d'événements
-- **Modal d'Informations** : Fenêtre détaillée avec toutes les informations du cours (enseignant, description complète)
 - **Swiper pour changer de semaine** : Ajout de la navigation par glissement (swipe) sur mobile pour passer d'une semaine à l'autre facilement
 - **Bouton d'Installation PWA** : Bouton personnalisé pour installer l'application comme PWA sur desktop et mobile
 - **Bouton Flottant Mobile** : Bouton "Aujourd'hui" accessible sur mobile via un FAB (Floating Action Button)
 
 ### 🐛 Corrections de Bugs
-- **Gestion des Fuseaux Horaires** : Correction du problème d'affichage des événements du matin (correction critique du calcul des plages horaires)
-- **Navigation Hebdomadaire** : Amélioration de la logique de navigation entre les semaines
-- **Filtrage des Événements** : Correction du filtrage des événements par jour pour la vue hebdomadaire
 - **Notifications de Mise à Jour** : Correction de la popup qui s'affichait même sans changements réels
 
 ### 🎨 Améliorations de l'Interface
-- **Styles des Enseignants** : Style spécifique pour l'affichage des enseignants (italique, taille réduite)
-- **Gestion des Données Manquantes** : Affichage élégant quand les informations d'enseignants ne sont pas disponibles
-- **Détection de Mises à Jour** : Notification intelligente lors de modifications de fichiers source
 - **Re-proposition d'Installation** : La popup d'installation se re-montre après les mises à jour ou vidage de cache
 - **Optimisation Mobile** : Masquage automatique du bouton de vue sur mobile quand l'installation est disponible
 
